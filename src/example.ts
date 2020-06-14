@@ -9,20 +9,27 @@ producer.on('error', err => {
 producer.loop();
 
 const consumer = new JobConsumer('test', async job => {
-  const fail = Math.random() > 0.5;
-  logger.info('consume job:', job.toString(), 'fail:', fail);
-  if (fail) throw new Error('fail');
+  logger.info('consume job:', job.toString());
 });
 consumer.on('error', err => {
   logger.info('consumer error:', err);
 });
-consumer.loop();
+// consumer.loop();
+
+consumer.bpop('test').then(job => {
+  logger.info('bpop test 1', job);
+});
+consumer.bpop('test').then(job => {
+  logger.info('bpop test 2', job);
+});
 
 let id = 0;
 setInterval(() => {
   id++;
   producer.push('test', String(id), undefined, 500);
-}, 1000);
+}, 5000);
+
+
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.info('unhandledRejection reason:', reason);

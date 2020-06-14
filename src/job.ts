@@ -41,13 +41,16 @@ export class Job {
   key() { return Job.getKey(this.topic, this.id); }
 
   toString() {
-    return JSON.stringify({
+    return JSON.stringify(this.toJSON());
+  }
+
+  toJSON() {
+    return {
       topic: this.topic,
       id: this.id,
       execAt: this.execAt,
       retry: this.retry,
-      data: this.data,
-    });
+    };
   }
 
   copy() {
