@@ -1,3 +1,6 @@
+// 需确保不会和 topic 和 id 里包含的字符冲突
+const SPLIT_STR = '&#_#&';
+
 export default class Job {
   topic: string;
   id: string;
@@ -25,14 +28,12 @@ export default class Job {
   }
 
   static parseFromKey(key: string) {
-    const [topic, id] = key.split('_');
+    const [topic, id] = key.split(SPLIT_STR);
     return { topic, id };
   }
 
-  // 需要保证 topic 和 id 中不应该出现 _ 字符，否则会解析出错
-  // todo: 优化
   static getKey(topic: string, id: string) {
-    return topic + '_' + id;
+    return topic + SPLIT_STR + id;
   }
 
   // topic 和 id 共同组成 redis 中 key
