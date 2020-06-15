@@ -9,13 +9,10 @@ const REDIS_KEY_PREFIX = 'node_delay_queue:';
 export const DELAY_BUCKET_KEY = REDIS_KEY_PREFIX + 'delay_bucket';
 
 
+export const JOB_POOL_KEY = REDIS_KEY_PREFIX + 'job_pool';
+
+
 const READY_QUEUE_KEY_PREFIX = 'ready_queue:';
 export function getReadyQueueKey(topic: string) {
   return REDIS_KEY_PREFIX + READY_QUEUE_KEY_PREFIX + topic;
-}
-
-
-const JOB_INFO_KEY_PREFIX = 'job_info:';
-export function getJobInfoKey(key: string) {
-  return REDIS_KEY_PREFIX + JOB_INFO_KEY_PREFIX + key;
 }

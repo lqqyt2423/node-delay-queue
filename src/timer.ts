@@ -4,65 +4,79 @@ import logger from './logger';
 const MAX_INTERVAL = 2147483647;
 
 export default class Timer {
-  timer: NodeJS.Timeout;
-  nextExecAt: number;
-  pendingFn: () => void;
+  timer: NodeJS.Timeout; // 计时器
+  arrival: number; // 计时到达点
+  pendingFn: () => void; // 调用此方法解除阻塞
 
   constructor() {
-    this.timer = null;
-    this.nextExecAt = Date.now() + MAX_INTERVAL;
-    this.pendingFn = null;
+    this.reset();
   }
 
-  async waitTo(nextExecAt: number) {
+  // 阻塞至时间点到达
+  public async waitTo(arrival: number) {
     const now = Date.now();
-    if (nextExecAt != null && nextExecAt <= now) return;
 
-    if (nextExecAt == null) nextExecAt = now + MAX_INTERVAL;
-    if (nextExecAt > now + MAX_INTERVAL) nextExecAt = now + MAX_INTERVAL;
-    this.nextExecAt = nextExecAt;
+    // 已经到达，不阻塞，直接返回
+    if (arrival != null && arrival <= now) return;
 
-    if (this.timer) clearTimeout(this.timer);
+    if (arrival == null) arrival = now + MAX_INTERVAL;
+    if (arrival > now + MAX_INTERVAL) arrival = now + MAX_INTERVAL;
+    this.arrival = arrival;
+
+    // 重置
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
     if (this.pendingFn) this.pendingFn = null;
-    const interval = nextExecAt - now;
 
     await new Promise(resolve => {
       this.pendingFn = resolve;
+      const interval = this.arrival - now;
       this.timer = setTimeout(() => {
-        this.finishWait(resolve);
+        this.finishWait();
       }, interval);
-      logger.info('timer next interval:', interval);
+      logger.debug('timer next interval:', interval);
     });
   }
 
-  finishWait(resolve: () => void) {
-    logger.info('timer finish wait');
-    this.pendingFn = null;
-    resolve();
-  }
-
-  notify(execAt: number) {
-    // 未开始主循环或主循环当前不阻塞
+  // 通知修改内部阻塞计时器
+  public notify(arrival: number) {
+    // 当前不阻塞
     if (!this.pendingFn) return;
 
-    // 新的消息执行时间在下次执行后面，不用管，直接返回
-    if (execAt >= this.nextExecAt) return;
+    // 在当前计时点之后，不做修改
+    if (arrival >= this.arrival) return;
 
-    logger.info('timer receive notify then retime');
+    logger.debug('timer new arrival', arrival);
 
-    // 重设计时器
-    const resolve = this.pendingFn;
-    this.nextExecAt = execAt;
-    if (this.timer) clearTimeout(this.timer);
-    const interval = execAt - Date.now();
-
-    if (interval <= 0) {
-      return this.finishWait(resolve);
+    // 重置计时器
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
     }
+    this.arrival = arrival;
+    const interval = this.arrival - Date.now();
+    if (interval <= 0) return this.finishWait();
 
+    // 开始新的计时器
     this.timer = setTimeout(() => {
-      this.finishWait(resolve);
+      this.finishWait();
     }, interval);
-    logger.info('timer next interval:', interval);
+    logger.debug('timer new next interval:', interval);
+  }
+
+  private reset() {
+    this.timer = null;
+    this.arrival = Date.now() + MAX_INTERVAL;
+    this.pendingFn = null;
+  }
+
+  // 结束阻塞
+  private finishWait() {
+    logger.debug('timer finish wait');
+    const resolve = this.pendingFn;
+    this.reset();
+    resolve();
   }
 }
