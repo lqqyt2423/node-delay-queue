@@ -12,11 +12,12 @@ export class JobManager extends EventEmitter {
   redis: IORedis.Redis;
   blockRedis: IORedis.Redis;
 
-  constructor() {
+  constructor(options: { redis?: IORedis.RedisOptions } = {}) {
     super();
+
     this.timer = new Timer();
-    this.redis = new IORedis();
-    this.blockRedis = new IORedis();
+    this.redis = new IORedis(options.redis);
+    this.blockRedis = new IORedis(options.redis);
   }
 
   // 新增延时消息
