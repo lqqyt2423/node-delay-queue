@@ -18,6 +18,9 @@ function getNowStr() {
   return `${toPadStr(year, 4)}-${toPadStr(month, 2)}-${toPadStr(day, 2)} ${toPadStr(hour, 2)}:${toPadStr(minute, 2)}:${toPadStr(second, 2)}`;
 }
 
+// 传入环境变量 NODE_ENV=dev 或 NODE_ENV=development 开启 debug 日志
+const isDev = process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development';
+
 class Logger {
   private _log(level: 'debug' | 'info' | 'warn' | 'error', message?: any, ...args: any[]) {
     if (message && typeof message === 'string') {
@@ -28,6 +31,7 @@ class Logger {
   }
 
   public debug(message?: any, ...args: any[]) {
+    if (!isDev) return;
     this._log('debug', message, ...args);
   }
 

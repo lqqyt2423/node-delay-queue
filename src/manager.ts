@@ -35,7 +35,7 @@ export class JobManager extends EventEmitter {
   }
 
   public async remove(job: Job) {
-    logger.debug('remove job:', job.toString());
+    logger.debug('remove job: %s', job);
 
     await this.redis.pipeline()
       .hdel(JOB_POOL_KEY, job.key())
@@ -118,7 +118,7 @@ export class JobManager extends EventEmitter {
   }
 
   private async _push(job: Job) {
-    logger.debug('_push job:', job.toString());
+    logger.debug('_push job: %s', job);
 
     await this.redis.pipeline()
       .hset(JOB_POOL_KEY, job.key(), job.toString())

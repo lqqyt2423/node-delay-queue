@@ -37,7 +37,7 @@ export class Client {
     delay?: number;
     data?: T;
   }) {
-    logger.debug('client push job:', JSON.stringify(payload));
+    logger.debug('client push job: %s', payload);
     return await this.request('/push', payload);
   }
 
