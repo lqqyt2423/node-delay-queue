@@ -1,6 +1,6 @@
 {
   "name": "node-delay-queue",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "node delay queue based on redis",
   "main": "dist/index.js",
   "files": [
@@ -12,6 +12,10 @@
     "test": "mocha -t 10000",
     "prepublishOnly": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lqqyt2423/node-delay-queue.git"
+  },
   "keywords": [
     "delay",
     "queue",
@@ -20,6 +24,10 @@
   ],
   "author": "liqiqiang",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lqqyt2423/node-delay-queue/issues"
+  },
+  "homepage": "https://github.com/lqqyt2423/node-delay-queue#readme",
   "devDependencies": {
     "@types/express": "^4.17.6",
     "@types/ioredis": "^4.16.5",
