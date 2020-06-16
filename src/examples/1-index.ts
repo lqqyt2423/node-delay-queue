@@ -1,5 +1,5 @@
-import JobManager from '../manager';
-import logger from '../logger';
+import { JobManager } from '../';
+import { logger } from '../logger';
 
 // 生产者和消费者在同一进程中运行
 

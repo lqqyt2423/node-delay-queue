@@ -1,5 +1,5 @@
-import Client from '../client';
-import logger from '../logger';
+import { Client } from '../';
+import { logger } from '../logger';
 
 // 延时队列客户端，可开多个实例，与服务端通过 http api 沟通
 

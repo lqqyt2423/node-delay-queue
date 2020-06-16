@@ -1,9 +1,9 @@
 import express from 'express';
-import Job from './job';
-import JobManager from './manager';
-import logger from './logger';
+import { Job } from './job';
+import { JobManager } from './manager';
+import { logger } from './logger';
 
-export default class Server {
+export class Server {
   manager: JobManager;
   app: express.Express;
 

@@ -1,7 +1,7 @@
 // 需确保不会和 topic 和 id 里包含的字符冲突
 const SPLIT_STR = '&#_#&';
 
-export default class Job<T = any> {
+export class Job<T = any> {
   topic: string;
   id: string;
   execAt: number; // 执行时间戳，毫秒

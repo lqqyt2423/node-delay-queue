@@ -1,5 +1,4 @@
-import JobManager from '../manager';
-import Server from '../server';
+import { JobManager, Server } from '../';
 import axios from 'axios';
 
 // 生产者和消费者在同一进程

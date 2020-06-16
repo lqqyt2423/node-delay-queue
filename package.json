@@ -1,6 +1,6 @@
 {
   "name": "node-delay-queue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "node delay queue based on redis",
   "main": "dist/index.js",
   "files": [

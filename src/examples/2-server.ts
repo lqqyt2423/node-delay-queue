@@ -1,5 +1,4 @@
-import JobManager from '../manager';
-import Server from '../server';
+import { JobManager, Server } from '../';
 
 // 延时队列服务端，仅能开一个实例，与客户端通过 http api 沟通
 

@@ -1,4 +1,4 @@
-import Job from './job';
+import { Job } from './job';
 import assert from 'assert';
 
 describe('job.ts', () => {

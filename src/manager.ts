@@ -1,13 +1,13 @@
 import { EventEmitter } from 'events';
 import IORedis from 'ioredis';
-import Job from './job';
-import Timer from './timer';
+import { Job } from './job';
+import { Timer } from './timer';
 import { DELAY_BUCKET_KEY, getReadyQueueKey, JOB_POOL_KEY, RETRY_LEVEL } from './helper';
-import logger from './logger';
+import { logger } from './logger';
 
 // 生产者仅能在单实例中运行
 // 消费者通过生产者的 bpop 接口进行消费，可多实例，确认消费后需主动调用 finish
-export default class JobManager extends EventEmitter {
+export class JobManager extends EventEmitter {
   timer: Timer;
   redis: IORedis.Redis;
   blockRedis: IORedis.Redis;

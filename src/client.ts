@@ -1,5 +1,5 @@
 import axios from 'axios';
-import logger from './logger';
+import { logger } from './logger';
 
 interface Job<T = any> {
   topic: string;
@@ -9,7 +9,7 @@ interface Job<T = any> {
   data?: T;
 }
 
-export default class Client {
+export class Client {
   endpoint: string;
 
   constructor(endpoint: string) {

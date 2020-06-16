@@ -1,9 +1,9 @@
-import logger from './logger';
+import { logger } from './logger';
 
 // setTimeout max val
 const MAX_INTERVAL = 2147483647;
 
-export default class Timer {
+export class Timer {
   timer: NodeJS.Timeout; // 计时器
   arrival: number; // 计时到达点
   pendingFn: () => void; // 调用此方法解除阻塞
