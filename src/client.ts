@@ -1,12 +1,12 @@
 import axios from 'axios';
 import logger from './logger';
 
-interface Job {
+interface Job<T = any> {
   topic: string;
   id: string;
   execAt: number;
   retry: number;
-  data?: any;
+  data?: T;
 }
 
 export default class Client {
@@ -30,22 +30,22 @@ export default class Client {
     return data.data;
   }
 
-  public async push(payload: {
+  public async push<T = any>(payload: {
     topic: string;
     id: string;
     execAt?: number;
     delay?: number;
-    data?: any;
+    data?: T;
   }) {
     logger.debug('client push job:', JSON.stringify(payload));
     return await this.request('/push', payload);
   }
 
-  public async pop(payload: { topic: string }): Promise<Job> {
+  public async pop<T = any>(payload: { topic: string }): Promise<Job<T>> {
     return await this.request('/pop', payload);
   }
 
-  public async bpop(payload: { topic: string }): Promise<Job> {
+  public async bpop<T = any>(payload: { topic: string }): Promise<Job<T>> {
     return await this.request('/bpop', payload);
   }
 
@@ -59,9 +59,9 @@ export default class Client {
 
   // 为某一主题添加消费者
   // 传入的方法定义执行不报错消费成功，否则消费失败
-  public async addConsumer(topic: string, fn: (job: Job) => Promise<void>) {
+  public async addConsumer<T = any>(topic: string, fn: (job: Job<T>) => Promise<void>) {
     while (true) {
-      const job = await this.bpop({ topic });
+      const job: Job<T> = await this.bpop({ topic });
       if (!job) continue;
 
       try {

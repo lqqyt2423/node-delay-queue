@@ -2,7 +2,11 @@
   "name": "node-delay-queue",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "mocha -t 10000"

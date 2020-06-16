@@ -44,7 +44,7 @@ export default class JobManager extends EventEmitter {
   }
 
   // 阻塞弹出
-  public async bpop(topic: string) {
+  public async bpop<T = any>(topic: string): Promise<Job<T>> {
     const readyQueueKey = getReadyQueueKey(topic);
     const res = await this.blockRedis.blpop(readyQueueKey, 0);
     if (!res || !res.length) return null;
@@ -55,7 +55,7 @@ export default class JobManager extends EventEmitter {
   }
 
   // 非阻塞弹出
-  public async pop(topic: string) {
+  public async pop<T = any>(topic: string): Promise<Job<T>> {
     const readyQueueKey = getReadyQueueKey(topic);
     const res = await this.redis.lpop(readyQueueKey);
     if (!res || !res.length) return null;
@@ -93,9 +93,9 @@ export default class JobManager extends EventEmitter {
   // 为某一主题添加消费者
   // 如果调用此方法，则生产者和消费者在同一进程中，慎用
   // 传入的方法定义执行不报错消费成功，否则消费失败
-  public async addConsumer(topic: string, fn: (job: Job) => Promise<void>) {
+  public async addConsumer<T = any>(topic: string, fn: (job: Job<T>) => Promise<void>) {
     while (true) {
-      const job = await this.bpop(topic);
+      const job: Job<T> = await this.bpop(topic);
       if (!job) continue;
 
       try {

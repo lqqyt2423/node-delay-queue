@@ -17,8 +17,8 @@ manager.start();
 new Server(manager).listen(8000);
 
 // 监测 http_call 主题中的任务时间到达
-manager.addConsumer('http_call', async job => {
-  const data = job.data as HTTPJob;
+manager.addConsumer<HTTPJob>('http_call', async job => {
+  const data = job.data;
 
   // 解析，解析失败直接丢弃此消息
   if (!data || !data.notifyurl) return;
