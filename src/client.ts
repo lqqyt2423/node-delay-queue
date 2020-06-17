@@ -74,4 +74,33 @@ export class Client {
       await this.finish(job);
     }
   }
+
+  // 并行消费
+  public async addParallelConsumer<T = any>(topic: string, paralle: number, fn: (job: Job<T>) => Promise<void>) {
+    if (paralle < 1) paralle = 1;
+
+    let count = 0;
+    let trigger: () => void;
+
+    while (true) {
+      const job: Job<T> = await this.bpop({ topic });
+
+      count++;
+      fn(job).then(() => { return this.finish(job); }).catch().then(() => {
+        count--;
+        if (trigger && count < paralle) {
+          logger.debug('release block');
+          trigger();
+          trigger = null;
+        }
+      });
+
+      if (count < paralle) continue;
+
+      logger.debug('begin block');
+      await new Promise(resolve => {
+        trigger = resolve;
+      });
+    }
+  }
 }
