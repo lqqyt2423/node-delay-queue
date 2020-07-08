@@ -1,7 +1,15 @@
 import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Job } from './job';
 import { JobManager } from './manager';
 import { logger } from './logger';
+
+// wrap for async function
+function wrap(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    fn(req, res, next).catch(next);
+  };
+}
 
 export class Server {
   manager: JobManager;
@@ -11,6 +19,7 @@ export class Server {
     this.manager = manager;
     this.app = express();
     this.init();
+    this.handleError();
   }
 
   public listen(port: number) {
@@ -23,7 +32,7 @@ export class Server {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
 
-    this.app.post('/push', async (req, res) => {
+    this.app.post('/push', wrap(async (req, res) => {
       const { topic, id, data } = req.body;
       if (!topic || !id) return res.json({ code: 1, message: '参数错误' });
 
@@ -33,18 +42,18 @@ export class Server {
 
       await this.manager.push(topic, id, execAt, delay, data);
       res.json({ code: 0 });
-    });
+    }));
 
-    this.app.post('/pop', async (req, res) => {
+    this.app.post('/pop', wrap(async (req, res) => {
       const { topic } = req.body;
       if (!topic) return res.json({ code: 1, message: '参数错误' });
 
       const job = await this.manager.pop(topic);
       if (!job) return res.json({ code: 0, data: null });
       res.json({ code: 0, data: job.toJSON() });
-    });
+    }));
 
-    this.app.post('/bpop', async (req, res) => {
+    this.app.post('/bpop', wrap(async (req, res) => {
       const { topic } = req.body;
       if (!topic) return res.json({ code: 1, message: '参数错误' });
 
@@ -56,24 +65,33 @@ export class Server {
         job = await this.manager.bpop(topic);
       } while (!job);
       res.json({ code: 0, data: job.toJSON() });
-    });
+    }));
 
-    this.app.post('/remove', async (req, res) => {
+    this.app.post('/remove', wrap(async (req, res) => {
       const { topic, id } = req.body;
       if (!topic || !id) return res.json({ code: 1, message: '参数错误' });
 
       const job = new Job(topic, id, 0);
       await this.manager.remove(job);
       res.json({ code: 0 });
-    });
+    }));
 
-    this.app.post('/finish', async (req, res) => {
+    this.app.post('/finish', wrap(async (req, res) => {
       const { topic, id } = req.body;
       if (!topic || !id) return res.json({ code: 1, message: '参数错误' });
 
       const job = new Job(topic, id, 0);
       await this.manager.finish(job);
       res.json({ code: 0 });
+    }));
+  }
+
+  private handleError() {
+    this.app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+      if (!res.finished) {
+        res.status(500).send(error.message);
+      }
+      logger.error(error);
     });
   }
 }

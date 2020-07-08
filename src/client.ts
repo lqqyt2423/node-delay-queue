@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import axios from 'axios';
 import { logger } from './logger';
 
@@ -9,10 +10,11 @@ interface Job<T = any> {
   data?: T;
 }
 
-export class Client {
+export class Client extends EventEmitter {
   endpoint: string;
 
   constructor(endpoint: string) {
+    super();
     this.endpoint = endpoint;
   }
 
