@@ -1,9 +1,9 @@
 import { JobManager } from '../';
-import { logger } from '../logger';
+const logger = console;
 
 // 生产者和消费者在同一进程中运行
 
-const manager = new JobManager();
+const manager = new JobManager({ verbose: true });
 manager.start();
 
 manager.addConsumer('test', async (job) => {
@@ -23,4 +23,4 @@ setInterval(() => {
   id++;
   const delay = (id % 10) * 1000;
   manager.push('test', String(id), undefined, delay);
-}, 5000);
+}, 1000);

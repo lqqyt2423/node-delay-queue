@@ -22,11 +22,23 @@ function getNowStr() {
 const isDev = process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development';
 
 class Logger {
+  enable: boolean;
+
+  constructor() {
+    this.enable = true;
+  }
+
+  public disable() {
+    this.enable = false;
+  }
+
   private _log(level: 'debug' | 'info' | 'warn' | 'error', message?: any, ...args: any[]) {
+    if (!this.enable) return;
+
     if (message && typeof message === 'string') {
-      console.log(`${getNowStr()} [${level}] ${message}`, ...args);
+      console.log(`${getNowStr()} [delay-queue] [${level}] ${message}`, ...args);
     } else {
-      console.log(`${getNowStr()} [${level}]`, message, ...args);
+      console.log(`${getNowStr()} [delay-queue] [${level}]`, message, ...args);
     }
   }
 

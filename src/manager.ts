@@ -12,12 +12,14 @@ export class JobManager extends EventEmitter {
   redis: IORedis.Redis;
   blockRedis: IORedis.Redis;
 
-  constructor(options: { redis?: IORedis.RedisOptions } = {}) {
+  constructor(options: { redis?: IORedis.RedisOptions, verbose?: boolean } = { verbose: false }) {
     super();
 
     this.timer = new Timer();
     this.redis = new IORedis(options.redis);
     this.blockRedis = new IORedis(options.redis);
+
+    if (!options.verbose) logger.disable();
   }
 
   // 新增延时消息
@@ -28,6 +30,7 @@ export class JobManager extends EventEmitter {
     }
 
     const job = new Job(topic, id, execAt, data);
+    logger.info('push job: %s', job);
     await this._push(job);
   }
 
@@ -36,7 +39,7 @@ export class JobManager extends EventEmitter {
   }
 
   public async remove(job: Job) {
-    logger.debug('remove job: %s', job);
+    logger.info('remove job: %s', job);
 
     await this.redis.pipeline()
       .hdel(JOB_POOL_KEY, job.key())
@@ -52,6 +55,7 @@ export class JobManager extends EventEmitter {
     const id = res[1];
     const job = await this.getJob(topic, id);
     await this.prepareRetry(job);
+    logger.info('consume job by bpop: %s', job);
     return job;
   }
 
@@ -63,6 +67,7 @@ export class JobManager extends EventEmitter {
     const id = res[1];
     const job = await this.getJob(topic, id);
     await this.prepareRetry(job);
+    logger.info('consume job by pop: %s', job);
     return job;
   }
 
@@ -80,7 +85,7 @@ export class JobManager extends EventEmitter {
         const { topic, id } = Job.parseFromKey(jobKey);
         const readyQueueKey = getReadyQueueKey(topic);
 
-        logger.debug('add job to ready queue', jobKey);
+        logger.info('job ready to consume: {"topic":"%s","id":"%s"}', topic, id);
 
         await this.redis.pipeline()
           .zrem(DELAY_BUCKET_KEY, jobKey)
