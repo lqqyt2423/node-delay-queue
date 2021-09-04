@@ -30,7 +30,7 @@ export class Timer {
     }
     if (this.pendingFn) this.pendingFn = null;
 
-    await new Promise(resolve => {
+    await new Promise<void>((resolve) => {
       this.pendingFn = resolve;
       const interval = this.arrival - now;
       this.timer = setTimeout(() => {

@@ -32,13 +32,7 @@ export class Client extends EventEmitter {
     return data.data;
   }
 
-  public async push<T = any>(payload: {
-    topic: string;
-    id: string;
-    execAt?: number;
-    delay?: number;
-    data?: T;
-  }) {
+  public async push<T = any>(payload: { topic: string; id: string; execAt?: number; delay?: number; data?: T }) {
     logger.debug('client push job: %s', payload);
     return await this.request('/push', payload);
   }
@@ -51,11 +45,11 @@ export class Client extends EventEmitter {
     return await this.request('/bpop', payload);
   }
 
-  public async remove(payload: { topic: string, id: string }) {
+  public async remove(payload: { topic: string; id: string }) {
     return await this.request('/remove', payload);
   }
 
-  public async finish(payload: { topic: string, id: string }) {
+  public async finish(payload: { topic: string; id: string }) {
     return await this.request('/finish', payload);
   }
 
@@ -88,19 +82,24 @@ export class Client extends EventEmitter {
       const job: Job<T> = await this.bpop({ topic });
 
       count++;
-      fn(job).then(() => { return this.finish(job); }).catch().then(() => {
-        count--;
-        if (trigger && count < paralle) {
-          logger.debug('release block');
-          trigger();
-          trigger = null;
-        }
-      });
+      fn(job)
+        .then(() => {
+          return this.finish(job);
+        })
+        .catch()
+        .then(() => {
+          count--;
+          if (trigger && count < paralle) {
+            logger.debug('release block');
+            trigger();
+            trigger = null;
+          }
+        });
 
       if (count < paralle) continue;
 
       logger.debug('begin block');
-      await new Promise(resolve => {
+      await new Promise<void>((resolve) => {
         trigger = resolve;
       });
     }

@@ -8,7 +8,7 @@ manager.start();
 
 manager.addConsumer('test', async (job) => {
   logger.info('consuming test topic:', job.toString());
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     setTimeout(() => {
       const success = Math.random() > 0.5;
       logger.info('consumed test topic:', job.toString(), success ? 'success' : 'fail');
